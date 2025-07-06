@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Weekly Budget Tracker</title>
   <style>
     html[data-theme='dark'] body {
@@ -60,10 +60,14 @@
       justify-content: center;
       margin-bottom: 10px;
     }
+
     .theme-toggle button {
-      width: auto;
       padding: 8px 16px;
       background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
     }
 
     label {
@@ -82,7 +86,6 @@
       border-radius: 10px;
       border: 1px solid #ccc;
       font-size: 15px;
-      transition: border-color 0.2s ease;
     }
 
     input:focus, select:focus {
@@ -91,7 +94,6 @@
     }
 
     button {
-      display: inline-block;
       width: 100%;
       padding: 12px;
       margin-bottom: 12px;
@@ -101,7 +103,6 @@
       font-size: 16px;
       color: white;
       background-color: #007bff;
-      transition: background-color 0.3s ease;
     }
 
     button:hover {
@@ -111,6 +112,7 @@
     .reset-btn {
       background-color: #dc3545;
     }
+
     .reset-btn:hover {
       background-color: #a71d2a;
     }
@@ -118,6 +120,7 @@
     .export-btn {
       background-color: #28a745;
     }
+
     .export-btn:hover {
       background-color: #1e7e34;
     }
@@ -174,10 +177,7 @@
         padding: 16px;
       }
 
-      input[type="text"],
-      input[type="number"],
-      select {
-        padding: 10px 12px;
+      input, select {
         font-size: 14px;
       }
 
@@ -238,168 +238,166 @@
   </div>
 
   <script>
-    // JS logic below
-let currentBudget = 0;
-let items = [];
-let currentWeek = '';
+    let currentBudget = 0;
+    let items = [];
+    let currentWeek = '';
 
-const weekSelect = document.getElementById('weekSelect');
-const budgetInput = document.getElementById('budgetInput');
-const remainingBudget = document.getElementById('remainingBudget');
-const itemName = document.getElementById('itemName');
-const itemPrice = document.getElementById('itemPrice');
-const itemList = document.getElementById('itemList');
+    const weekSelect = document.getElementById('weekSelect');
+    const budgetInput = document.getElementById('budgetInput');
+    const remainingBudget = document.getElementById('remainingBudget');
+    const itemName = document.getElementById('itemName');
+    const itemPrice = document.getElementById('itemPrice');
+    const itemList = document.getElementById('itemList');
 
-function generateWeekOptions() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const weekNow = getWeekNumber(now);
-  weekSelect.innerHTML = '';
-  for (let i = 1; i <= 52; i++) {
-    const option = document.createElement('option');
-    const value = `${year}-W${String(i).padStart(2, '0')}`;
-    option.value = value;
-    option.textContent = `Week ${i}`;
-    if (i === weekNow) {
-      option.selected = true;
-      currentWeek = value;
+    function generateWeekOptions() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const weekNow = getWeekNumber(now);
+      weekSelect.innerHTML = '';
+      for (let i = 1; i <= 52; i++) {
+        const option = document.createElement('option');
+        const value = `${year}-W${String(i).padStart(2, '0')}`;
+        option.value = value;
+        option.textContent = `Week ${i}`;
+        if (i === weekNow) {
+          option.selected = true;
+          currentWeek = value;
+        }
+        weekSelect.appendChild(option);
+      }
+      loadData();
     }
-    weekSelect.appendChild(option);
-  }
-  loadData();
-}
 
-function getWeekNumber(d) {
-  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-}
+    function getWeekNumber(d) {
+      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      const dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
 
-function changeWeek() {
-  currentWeek = weekSelect.value;
-  loadData();
-}
+    function changeWeek() {
+      currentWeek = weekSelect.value;
+      loadData();
+    }
 
-function loadData() {
-  const saved = localStorage.getItem(`budgetData-${currentWeek}`);
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    currentBudget = parsed.budget || 0;
-    items = parsed.items || [];
-  } else {
-    currentBudget = 0;
-    items = [];
-  }
-  updateBudgetDisplay();
-  renderItems();
-}
+    function loadData() {
+      const saved = localStorage.getItem(`budgetData-${currentWeek}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        currentBudget = parsed.budget || 0;
+        items = parsed.items || [];
+      } else {
+        currentBudget = 0;
+        items = [];
+      }
+      updateBudgetDisplay();
+      renderItems();
+    }
 
-function saveData() {
-  localStorage.setItem(`budgetData-${currentWeek}`,
-    JSON.stringify({ budget: currentBudget, items })
-  );
-}
+    function saveData() {
+      localStorage.setItem(`budgetData-${currentWeek}`,
+        JSON.stringify({ budget: currentBudget, items })
+      );
+    }
 
-function setBudget() {
-  const budget = parseFloat(budgetInput.value);
-  if (!budgetInput.value) return alert('Budget input is required.');
-  if (isNaN(budget) || budget <= 0) return alert('Please enter a valid positive budget.');
-  currentBudget = budget;
-  items = [];
-  saveData();
-  updateBudgetDisplay();
-  renderItems();
-}
+    function setBudget() {
+      const budget = parseFloat(budgetInput.value);
+      if (!budgetInput.value) return alert('Budget input is required.');
+      if (isNaN(budget) || budget <= 0) return alert('Please enter a valid positive budget.');
+      currentBudget = budget;
+      items = [];
+      saveData();
+      updateBudgetDisplay();
+      renderItems();
+    }
 
-function updateBudgetDisplay() {
-  remainingBudget.textContent = `Remaining: ₱${currentBudget.toFixed(2)}`;
-}
+    function updateBudgetDisplay() {
+      remainingBudget.textContent = `Remaining: ₱${currentBudget.toFixed(2)}`;
+    }
 
-function addItem() {
-  const name = itemName.value.trim();
-  const price = parseFloat(itemPrice.value);
-  if (!name) return alert('Item name is required.');
-  if (!itemPrice.value) return alert('Item price is required.');
-  if (isNaN(price) || price <= 0) return alert('Enter a valid item price.');
-  if (price > currentBudget) return alert('Not enough budget to add this item.');
-  items.push({ name, price });
-  currentBudget -= price;
-  saveData();
-  updateBudgetDisplay();
-  renderItems();
-  itemName.value = '';
-  itemPrice.value = '';
-}
+    function addItem() {
+      const name = itemName.value.trim();
+      const price = parseFloat(itemPrice.value);
+      if (!name) return alert('Item name is required.');
+      if (!itemPrice.value) return alert('Item price is required.');
+      if (isNaN(price) || price <= 0) return alert('Enter a valid item price.');
+      if (price > currentBudget) return alert('Not enough budget to add this item.');
+      items.push({ name, price });
+      currentBudget -= price;
+      saveData();
+      updateBudgetDisplay();
+      renderItems();
+      itemName.value = '';
+      itemPrice.value = '';
+    }
 
-function removeItem(index) {
-  if (index < 0 || index >= items.length) return;
-  currentBudget += items[index].price;
-  items.splice(index, 1);
-  saveData();
-  updateBudgetDisplay();
-  renderItems();
-}
+    function removeItem(index) {
+      if (index < 0 || index >= items.length) return;
+      currentBudget += items[index].price;
+      items.splice(index, 1);
+      saveData();
+      updateBudgetDisplay();
+      renderItems();
+    }
 
-function resetAll() {
-  if (confirm('Are you sure you want to reset everything for this week?')) {
-    currentBudget = 0;
-    items = [];
-    localStorage.removeItem(`budgetData-${currentWeek}`);
-    updateBudgetDisplay();
-    renderItems();
-  }
-}
+    function resetAll() {
+      if (confirm('Are you sure you want to reset everything for this week?')) {
+        currentBudget = 0;
+        items = [];
+        localStorage.removeItem(`budgetData-${currentWeek}`);
+        updateBudgetDisplay();
+        renderItems();
+      }
+    }
 
-function renderItems() {
-  itemList.innerHTML = '';
-  if (!items.length) {
-    itemList.innerHTML = '<li style="text-align:center;color:#aaa">No expenses yet.</li>';
-    return;
-  }
-  items.forEach((item, index) => {
-    const li = document.createElement('li');
-    li.innerHTML = `<span>${item.name}</span><span>₱${item.price.toFixed(2)}</span>`;
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = 'Remove';
-    removeBtn.className = 'remove-btn';
-    removeBtn.onclick = () => removeItem(index);
-    li.appendChild(removeBtn);
-    itemList.appendChild(li);
-  });
-}
-
-function exportCSV() {
-  try {
-    let allKeys = Object.keys(localStorage).filter(key => key.startsWith('budgetData-'));
-    let csv = 'Week,Budget,Item,Price
-';
-    allKeys.forEach(key => {
-      const week = key.replace('budgetData-', '');
-      const { budget, items } = JSON.parse(localStorage.getItem(key));
-      items.forEach(item => {
-        csv += `${week},${budget},${item.name},${item.price}
-`;
+    function renderItems() {
+      itemList.innerHTML = '';
+      if (!items.length) {
+        itemList.innerHTML = '<li style="text-align:center;color:#aaa">No expenses yet.</li>';
+        return;
+      }
+      items.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${item.name}</span><span>₱${item.price.toFixed(2)}</span>`;
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = 'Remove';
+        removeBtn.className = 'remove-btn';
+        removeBtn.onclick = () => removeItem(index);
+        li.appendChild(removeBtn);
+        itemList.appendChild(li);
       });
-    });
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'budget-history.csv';
-    link.click();
-  } catch (error) {
-    alert('Export failed. Something went wrong.');
-    console.error(error);
-  }
-}
+    }
 
-window.onload = () => {
-  generateWeekOptions();
-};
-</script>
+    function exportCSV() {
+      try {
+        let allKeys = Object.keys(localStorage).filter(key => key.startsWith('budgetData-'));
+        let csv = 'Week,Budget,Item,Price\n';
+        allKeys.forEach(key => {
+          const week = key.replace('budgetData-', '');
+          const { budget, items } = JSON.parse(localStorage.getItem(key));
+          items.forEach(item => {
+            csv += `${week},${budget},${item.name},${item.price}\n`;
+          });
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'budget-history.csv';
+        link.click();
+      } catch (error) {
+        alert('Export failed. Something went wrong.');
+        console.error(error);
+      }
+    }
+
+    window.onload = () => {
+      generateWeekOptions();
+    };
+  </script>
 </body>
 </html>
+
 
 
 
