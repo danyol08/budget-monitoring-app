@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Weekly Budget Tracker</title>
+
+  <!-- ✅ Manifest for PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#007bff" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="apple-touch-icon" href="icon.png" />
+
   <style>
     html[data-theme='dark'] body {
       background: #121212;
@@ -191,31 +199,6 @@
       }
     }
   </style>
-  <script>
-    function toggleTheme() {
-      const html = document.documentElement;
-      const currentTheme = html.getAttribute('data-theme');
-      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-      html.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) {
-        document.documentElement.setAttribute('data-theme', savedTheme);
-      }
-
-      const lastUsedWeek = localStorage.getItem('lastUsedWeek');
-      if (lastUsedWeek) {
-        currentWeek = lastUsedWeek;
-        weekSelect.value = currentWeek;
-        weekSelect.disabled = true;
-        setBudgetBtn.disabled = true;
-        loadData();
-      }
-    });
-  </script>
 </head>
 <body>
   <div class="container">
@@ -248,6 +231,14 @@
   </div>
 
   <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    }
+
     let currentBudget = 0;
     let items = [];
     let currentWeek = '';
@@ -260,12 +251,26 @@
     const itemPrice = document.getElementById('itemPrice');
     const itemList = document.getElementById('itemList');
 
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+
+      const lastUsedWeek = localStorage.getItem('lastUsedWeek');
+      if (lastUsedWeek) {
+        currentWeek = lastUsedWeek;
+        weekSelect.value = currentWeek;
+        weekSelect.disabled = true;
+        setBudgetBtn.disabled = true;
+        loadData();
+      }
+    });
+
     function setBudget() {
       const budget = parseFloat(budgetInput.value);
       const label = weekSelect.value.trim();
       if (!label) return alert('Please label the budget period.');
       if (!budgetInput.value) return alert('Budget input is required.');
-      if (isNaN(budget) || budget <= 0) return alert('Please enter a valid positive budget.');
+      if (isNaN(budget) || budget <= 0) return alert('Enter valid budget.');
       currentBudget = budget;
       items = [];
       currentWeek = label;
@@ -281,10 +286,7 @@
     function addExtraBudget() {
       const extra = prompt('Enter extra budget amount (₱):');
       const amount = parseFloat(extra);
-      if (isNaN(amount) || amount <= 0) {
-        alert('Invalid extra amount.');
-        return;
-      }
+      if (isNaN(amount) || amount <= 0) return alert('Invalid extra amount.');
       currentBudget += amount;
       saveData();
       updateBudgetDisplay();
@@ -306,9 +308,7 @@
     }
 
     function saveData() {
-      localStorage.setItem(`budgetData-${currentWeek}`,
-        JSON.stringify({ budget: currentBudget, items })
-      );
+      localStorage.setItem(`budgetData-${currentWeek}`, JSON.stringify({ budget: currentBudget, items }));
     }
 
     function updateBudgetDisplay() {
@@ -320,8 +320,8 @@
       const price = parseFloat(itemPrice.value);
       if (!name) return alert('Item name is required.');
       if (!itemPrice.value) return alert('Item price is required.');
-      if (isNaN(price) || price <= 0) return alert('Enter a valid item price.');
-      if (price > currentBudget) return alert('Not enough budget to add this item.');
+      if (isNaN(price) || price <= 0) return alert('Enter a valid price.');
+      if (price > currentBudget) return alert('Not enough budget.');
       items.push({ name, price });
       currentBudget -= price;
       saveData();
@@ -394,10 +394,22 @@
         link.download = 'budget-history.csv';
         link.click();
       } catch (error) {
-        alert('Export failed. Something went wrong.');
+        alert('Export failed.');
         console.error(error);
       }
     }
   </script>
+
+  <!-- ✅ Register Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('✅ Service Worker registered', reg))
+          .catch(err => console.error('❌ Service Worker failed', err));
+      });
+    }
+  </script>
 </body>
 </html>
+
