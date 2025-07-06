@@ -172,8 +172,7 @@
     <ul id="itemList"></ul>
   </div>
 
-  <script defer>
-    // JavaScript logic starts here
+  <script>
 let currentBudget = 0;
 let items = [];
 let currentWeek = getCurrentWeek();
@@ -323,15 +322,13 @@ function renderItems() {
 function exportCSV() {
   try {
     let allKeys = Object.keys(localStorage).filter(key => key.startsWith('budgetData-'));
-    let csv = 'Week,Budget,Item,Price
-';
+    let csv = 'Week,Budget,Item,Price\n';
 
     allKeys.forEach(key => {
       const week = key.replace('budgetData-', '');
       const { budget, items } = JSON.parse(localStorage.getItem(key));
       items.forEach(item => {
-        csv += `${week},${budget},${item.name},${item.price}
-`;
+        csv += `${week},${budget},${item.name},${item.price}\n`;
       });
     });
 
@@ -344,10 +341,7 @@ function exportCSV() {
     alert('Export failed. Something went wrong.');
     console.error(error);
   }
-} // JavaScript logic ends here`
-    }
-  ]
-}
+} // JavaScript logic ends here
   </script>
 </body>
 </html>
