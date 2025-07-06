@@ -13,8 +13,7 @@
       background: #1e1e1e;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
-    html[data-theme='dark'] input,
-    html[data-theme='dark'] select {
+    html[data-theme='dark'] input {
       background-color: #2a2a2a;
       color: #e0e0e0;
       border-color: #555;
@@ -73,8 +72,7 @@
     }
 
     input[type="text"],
-    input[type="number"],
-    select {
+    input[type="number"] {
       width: 100%;
       box-sizing: border-box;
       padding: 10px 14px;
@@ -85,7 +83,7 @@
       transition: border-color 0.2s ease;
     }
 
-    input:focus, select:focus {
+    input:focus {
       border-color: #007bff;
       outline: none;
     }
@@ -175,8 +173,7 @@
       }
 
       input[type="text"],
-      input[type="number"],
-      select {
+      input[type="number"] {
         padding: 10px 12px;
         font-size: 14px;
       }
@@ -215,8 +212,9 @@
     </div>
 
     <h2>📊 Weekly Budget Tracker</h2>
-    <label for="weekSelect">Select Week</label>
-    <select id="weekSelect" onchange="changeWeek()"></select>
+
+    <label for="labelInput">Label This Budget Period</label>
+    <input type="text" id="labelInput" placeholder="e.g. July 7-10, 2025" />
 
     <label for="budgetInput">Set Weekly Budget (₱)</label>
     <input type="number" id="budgetInput" placeholder="e.g. 1500" />
@@ -238,52 +236,21 @@
   </div>
 
   <script>
-    // JS logic below
 let currentBudget = 0;
 let items = [];
-let currentWeek = '';
+let currentLabel = '';
 
-const weekSelect = document.getElementById('weekSelect');
+const labelInput = document.getElementById('labelInput');
 const budgetInput = document.getElementById('budgetInput');
 const remainingBudget = document.getElementById('remainingBudget');
 const itemName = document.getElementById('itemName');
 const itemPrice = document.getElementById('itemPrice');
 const itemList = document.getElementById('itemList');
 
-function generateWeekOptions() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const weekNow = getWeekNumber(now);
-  weekSelect.innerHTML = '';
-  for (let i = 1; i <= 52; i++) {
-    const option = document.createElement('option');
-    const value = `${year}-W${String(i).padStart(2, '0')}`;
-    option.value = value;
-    option.textContent = `Week ${i}`;
-    if (i === weekNow) {
-      option.selected = true;
-      currentWeek = value;
-    }
-    weekSelect.appendChild(option);
-  }
-  loadData();
-}
-
-function getWeekNumber(d) {
-  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-}
-
-function changeWeek() {
-  currentWeek = weekSelect.value;
-  loadData();
-}
-
 function loadData() {
-  const saved = localStorage.getItem(`budgetData-${currentWeek}`);
+  currentLabel = labelInput.value.trim();
+  if (!currentLabel) return;
+  const saved = localStorage.getItem(`budgetData-${currentLabel}`);
   if (saved) {
     const parsed = JSON.parse(saved);
     currentBudget = parsed.budget || 0;
@@ -296,22 +263,26 @@ function loadData() {
   renderItems();
 }
 
+labelInput.addEventListener('change', loadData);
+
 function saveData() {
-  localStorage.setItem(`budgetData-${currentWeek}`,
-    JSON.stringify({ budget: currentBudget, items })
-  );
+  if (!currentLabel) return;
+  localStorage.setItem(`budgetData-${currentLabel}`, JSON.stringify({ budget: currentBudget, items }));
 }
 
 function setBudget() {
+  const label = labelInput.value.trim();
+  if (!label) return alert('Label input is required.');
+  currentLabel = label;
   const budget = parseFloat(budgetInput.value);
   if (!budgetInput.value) return alert('Budget input is required.');
   if (isNaN(budget) || budget <= 0) return alert('Please enter a valid positive budget.');
   currentBudget = budget;
   items = [];
+  budgetInput.value = '';
   saveData();
   updateBudgetDisplay();
   renderItems();
-  budgetInput.value = ''; // Clear input value
 }
 
 function updateBudgetDisplay() {
@@ -319,6 +290,7 @@ function updateBudgetDisplay() {
 }
 
 function addItem() {
+  if (!currentLabel) return alert('Please enter and select a label first.');
   const name = itemName.value.trim();
   const price = parseFloat(itemPrice.value);
   if (!name) return alert('Item name is required.');
@@ -344,10 +316,11 @@ function removeItem(index) {
 }
 
 function resetAll() {
-  if (confirm('Are you sure you want to reset everything for this week?')) {
+  if (!currentLabel) return;
+  if (confirm('Are you sure you want to reset everything for this budget period?')) {
     currentBudget = 0;
     items = [];
-    localStorage.removeItem(`budgetData-${currentWeek}`);
+    localStorage.removeItem(`budgetData-${currentLabel}`);
     updateBudgetDisplay();
     renderItems();
   }
@@ -374,12 +347,12 @@ function renderItems() {
 function exportCSV() {
   try {
     let allKeys = Object.keys(localStorage).filter(key => key.startsWith('budgetData-'));
-    let csv = 'Week,Budget,Item,Price\n';
+    let csv = 'Label,Budget,Item,Price\n';
     allKeys.forEach(key => {
-      const week = key.replace('budgetData-', '');
+      const label = key.replace('budgetData-', '');
       const { budget, items } = JSON.parse(localStorage.getItem(key));
       items.forEach(item => {
-        csv += `${week},${budget},${item.name},${item.price}\n`;
+        csv += `${label},${budget},${item.name},${item.price}\n`;
       });
     });
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -392,13 +365,10 @@ function exportCSV() {
     console.error(error);
   }
 }
-
-window.onload = () => {
-  generateWeekOptions();
-};
   </script>
 </body>
 </html>
+
 
 
 
