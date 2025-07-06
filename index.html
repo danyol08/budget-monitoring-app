@@ -221,6 +221,7 @@
     <label for="budgetInput">Set Weekly Budget (₱)</label>
     <input type="number" id="budgetInput" placeholder="e.g. 1500" />
     <button onclick="setBudget()">Set Budget</button>
+    <button onclick="addExtraBudget()">Add Extra Budget</button>
     <div class="budget-display" id="remainingBudget">Remaining: ₱0.00</div>
 
     <label for="itemName">Item Name</label>
@@ -259,9 +260,23 @@
       items = [];
       currentWeek = label;
       weekSelect.disabled = true;
+      budgetInput.value = '';
       saveData();
       updateBudgetDisplay();
       renderItems();
+    }
+
+    function addExtraBudget() {
+      const extra = prompt('Enter extra budget amount (₱):');
+      const amount = parseFloat(extra);
+      if (isNaN(amount) || amount <= 0) {
+        alert('Invalid extra amount.');
+        return;
+      }
+      currentBudget += amount;
+      saveData();
+      updateBudgetDisplay();
+      budgetInput.value = '';
     }
 
     function loadData() {
@@ -302,6 +317,7 @@
       renderItems();
       itemName.value = '';
       itemPrice.value = '';
+      budgetInput.value = '';
     }
 
     function removeItem(index) {
@@ -311,6 +327,7 @@
       saveData();
       updateBudgetDisplay();
       renderItems();
+      budgetInput.value = '';
     }
 
     function resetAll() {
@@ -321,6 +338,7 @@
         updateBudgetDisplay();
         renderItems();
         weekSelect.disabled = false;
+        budgetInput.value = '';
       }
     }
 
@@ -366,6 +384,7 @@
   </script>
 </body>
 </html>
+
 
 
 
