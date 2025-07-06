@@ -205,6 +205,15 @@
       if (savedTheme) {
         document.documentElement.setAttribute('data-theme', savedTheme);
       }
+
+      const lastUsedWeek = localStorage.getItem('lastUsedWeek');
+      if (lastUsedWeek) {
+        currentWeek = lastUsedWeek;
+        weekSelect.value = currentWeek;
+        weekSelect.disabled = true;
+        setBudgetBtn.disabled = true;
+        loadData();
+      }
     });
   </script>
 </head>
@@ -263,6 +272,7 @@
       weekSelect.disabled = true;
       budgetInput.value = '';
       setBudgetBtn.disabled = true;
+      localStorage.setItem('lastUsedWeek', currentWeek);
       saveData();
       updateBudgetDisplay();
       renderItems();
@@ -334,13 +344,15 @@
 
     function resetAll() {
       if (confirm('Are you sure you want to reset everything for this week?')) {
+        localStorage.removeItem(`budgetData-${currentWeek}`);
+        localStorage.removeItem('lastUsedWeek');
         currentBudget = 0;
         items = [];
-        localStorage.removeItem(`budgetData-${currentWeek}`);
         updateBudgetDisplay();
         renderItems();
         weekSelect.disabled = false;
         setBudgetBtn.disabled = false;
+        weekSelect.value = '';
         budgetInput.value = '';
       }
     }
@@ -365,13 +377,15 @@
 
     function exportCSV() {
       try {
-        let allKeys = Object.keys(localStorage).filter(key => key.startsWith('budgetData-'));
+        let allKeys = Object.keys(localStorage)
+          .filter(key => key.startsWith('budgetData-'))
+          .sort();
         let csv = 'Week,Budget,Item,Price\n';
         allKeys.forEach(key => {
           const week = key.replace('budgetData-', '');
           const { budget, items } = JSON.parse(localStorage.getItem(key));
           items.forEach(item => {
-            csv += `${week},${budget},${item.name},${item.price}\n`;
+            csv += `"${week}",${budget},"${item.name}",${item.price}\n`;
           });
         });
         const blob = new Blob([csv], { type: 'text/csv' });
@@ -387,6 +401,7 @@
   </script>
 </body>
 </html>
+
 
 
 
