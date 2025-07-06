@@ -220,7 +220,7 @@
 
     <label for="budgetInput">Set Weekly Budget (₱)</label>
     <input type="number" id="budgetInput" placeholder="e.g. 1500" />
-    <button onclick="setBudget()">Set Budget</button>
+    <button id="setBudgetBtn" onclick="setBudget()">Set Budget</button>
     <button onclick="addExtraBudget()">Add Extra Budget</button>
     <div class="budget-display" id="remainingBudget">Remaining: ₱0.00</div>
 
@@ -245,6 +245,7 @@
 
     const weekSelect = document.getElementById('weekSelect');
     const budgetInput = document.getElementById('budgetInput');
+    const setBudgetBtn = document.getElementById('setBudgetBtn');
     const remainingBudget = document.getElementById('remainingBudget');
     const itemName = document.getElementById('itemName');
     const itemPrice = document.getElementById('itemPrice');
@@ -261,6 +262,7 @@
       currentWeek = label;
       weekSelect.disabled = true;
       budgetInput.value = '';
+      setBudgetBtn.disabled = true;
       saveData();
       updateBudgetDisplay();
       renderItems();
@@ -338,6 +340,7 @@
         updateBudgetDisplay();
         renderItems();
         weekSelect.disabled = false;
+        setBudgetBtn.disabled = false;
         budgetInput.value = '';
       }
     }
@@ -384,6 +387,7 @@
   </script>
 </body>
 </html>
+
 
 
 
