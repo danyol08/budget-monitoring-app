@@ -252,20 +252,21 @@ const itemList = document.getElementById('itemList');
 
 function generateWeekOptions() {
   const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentWeek = getWeekNumber(now);
+  const year = now.getFullYear();
+  const weekNow = getWeekNumber(now);
   weekSelect.innerHTML = '';
   for (let i = 1; i <= 52; i++) {
     const option = document.createElement('option');
-    const value = `${currentYear}-W${String(i).padStart(2, '0')}`;
+    const value = `${year}-W${String(i).padStart(2, '0')}`;
     option.value = value;
     option.textContent = `Week ${i}`;
-    if (i === currentWeek) {
+    if (i === weekNow) {
       option.selected = true;
+      currentWeek = value;
     }
     weekSelect.appendChild(option);
   }
-  changeWeek();
+  loadData();
 }
 
 function getWeekNumber(d) {
@@ -399,6 +400,7 @@ window.onload = () => {
 </script>
 </body>
 </html>
+
 
 
 
