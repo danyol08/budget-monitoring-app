@@ -70,8 +70,13 @@
     }
     .theme-toggle button {
       width: auto;
-      padding: 8px 16px;
+      padding: 4px 8px;
+      font-size: 13px;
+      border-radius: 8px;
       background-color: #6c757d;
+      color: white;
+      border: none;
+      cursor: pointer;
     }
 
     label {
@@ -203,7 +208,7 @@
 <body>
   <div class="container">
     <div class="theme-toggle">
-      <button onclick="toggleTheme()">🌓 Toggle Dark Mode</button>
+      <button onclick="toggleTheme()">Toggle 🌞 / 🌙</button>
     </div>
     <div id="app"></div>
   </div>
@@ -223,3 +228,4 @@
   </script>
 </body>
 </html>
+
